@@ -13,4 +13,5 @@
 
 ![Aaron Swartz](https://raw.githubusercontent.com/lycc123456/TextPhoto/master/20180228154113.jpg)
 ![Aaron Swartz](https://raw.githubusercontent.com/lycc123456/TextPhoto/master/20180228155045.jpg)
+![Aaron Swartz](https://raw.githubusercontent.com/lycc123456/TextPhoto/master/20180228163548.png)
 ![Aaron Swartz](https://raw.githubusercontent.com/lycc123456/TextPhoto/master/20180228155217.png)
