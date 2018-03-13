@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -82,13 +80,13 @@
 
         <SeekBar
             android:id="@+id/textSizeBar"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_weight="1"
-            android:max="40"
+            android:max="100"
             android:min="9"
             android:progress="18" />
 
@@ -221,12 +219,60 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/make_img_style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/text_bac_layout">
+
+        <TextView
+            android:id="@+id/make_img_style_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="5dp"
+            android:gravity="center"
+            android:text="图片样式:"
+            android:textColor="#333333"
+            app:layout_constraintLeft_toLeftOf="parent" />
+
+        <RadioGroup
+            android:id="@+id/photo_style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/photo_style_normal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="5dp"
+                android:gravity="center"
+                android:text="普通图片"
+                android:checked="true"
+                android:textColor="@color/text_535353_selector" />
+
+            <RadioButton
+                android:id="@+id/photo_style_phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:text="手机壁纸"
+                android:textColor="@color/text_535353_selector" />
+        </RadioGroup>
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/text_edit_layout"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_marginTop="30dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/text_bac_layout">
+        app:layout_constraintTop_toBottomOf="@+id/make_img_style">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -268,7 +314,7 @@
         android:gravity="center"
         android:paddingBottom="8dp"
         android:paddingTop="8dp"
-        android:text="图片显示:     (长按图片，保存到本地)"
+        android:text="图片显示: (长按图片保存到本地，大图可滚动查看)"
         android:textColor="#333333"
         app:layout_constraintTop_toBottomOf="@+id/text_edit_layout" />
 

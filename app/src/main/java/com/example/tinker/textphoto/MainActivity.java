@@ -2,18 +2,17 @@ package com.example.tinker.textphoto;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Layout;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.StaticLayout;
@@ -21,9 +20,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.AbsoluteSizeSpan;
-import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -31,18 +28,20 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toolbar;
 
+import com.example.tinker.textphoto.utils.ImageUtils;
+import com.example.tinker.textphoto.utils.ScreenUtils;
+import com.example.tinker.textphoto.utils.Toast;
+import com.example.tinker.textphoto.utils.Utils;
 import com.sloop.fonts.FontsManager;
-import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 
 import java.io.File;
-import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener, SeekBar.OnSeekBarChangeListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener {
 
     //字体
     private TextView mTextStyle;
@@ -79,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Bitmap mBitmap;
 
     private String filePath;
+    private RadioGroup mPhotoStyleGroup;
+    private int checkid = 1;
 
 
     @Override
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mTextBackground3 = (TextView) findViewById(R.id.textBackground3);
         mTextBackground4 = (EditText) findViewById(R.id.textBackground4);
 
+        mPhotoStyleGroup = (RadioGroup) findViewById(R.id.photo_style);
         mCreateButton = (TextView) findViewById(R.id.create_img);
         mTextEditor = (EditText) findViewById(R.id.text_editor);
         mImg = (ImageView) findViewById(R.id.img);
@@ -123,8 +125,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mTextBackground1.setOnClickListener(this);
         mTextBackground2.setOnClickListener(this);
         mTextBackground3.setOnClickListener(this);
-        mImg.setOnLongClickListener(this);
 
+        mImg.setOnLongClickListener(this);
+        mPhotoStyleGroup.setOnCheckedChangeListener(this);
+
+        Utils.init(this);
         addWatchListener();
         initTextStyle();
 
@@ -204,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.create_img:
+                Utils.hideSoftKeyBoard(this);
                 createImage();
 
                 break;
@@ -283,10 +289,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         (int) Math.ceil(StaticLayout.getDesiredWidth(text, textPaint)) : 760),
                 Layout.Alignment.ALIGN_CENTER, 1.2f, 0.0f, false);
 
-        Bitmap bitmap = Bitmap.createBitmap(staticLayout.getEllipsizedWidth() + dip2px(6),
-                staticLayout.getHeight() + dip2px(6), Bitmap.Config.ARGB_8888);
+        Rect staticLayoutRect = new Rect(0, 0, staticLayout.getEllipsizedWidth(), staticLayout.getHeight());
+
+        int width = (checkid == 1) ? (staticLayout.getEllipsizedWidth() + dip2px(6)) : ScreenUtils.getScreenWidth();
+        int height = (checkid == 1) ? (staticLayout.getHeight() + dip2px(6)) : ScreenUtils.getScreenHeight();
+        Bitmap bitmap = Bitmap.createBitmap(width,
+                height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
-        canvas.translate(6, 6);
+
+
+        //此处中心点的设置  一大一小两个矩形  小矩形在大的中心位置
+        int x = (bitmap.getWidth() - staticLayoutRect.width()) / 2;
+        int y = (bitmap.getHeight() - staticLayoutRect.height()) / 2;
+
+        canvas.translate(x, y);
         canvas.drawColor(mTextBgColorNu);
         canvas.save(Canvas.ALL_SAVE_FLAG);
         canvas.restore();
@@ -388,4 +404,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+        if (checkedId == R.id.photo_style_phone) {
+            checkid = 2;
+        } else {
+            checkid = 1;
+        }
+    }
 }
