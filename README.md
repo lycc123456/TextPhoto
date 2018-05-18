@@ -11,7 +11,12 @@
 
 ## 本程序因为自带三款字体，所以包相对较大，有需要的朋友可以自己删掉，或者更换喜欢的字体！
 
-![Aaron Swartz](https://raw.githubusercontent.com/lycc123456/TextPhoto/master/20180228154113.jpg)
-![Aaron Swartz](https://raw.githubusercontent.com/lycc123456/TextPhoto/master/20180228155045.jpg)
+![Aaron Swartz](https://raw.githubusercontent.com/lycc123456/TextPhoto/master/20180228155217.jpg)
 ![Aaron Swartz](https://raw.githubusercontent.com/lycc123456/TextPhoto/master/20180228163548.png)
 ![Aaron Swartz](https://raw.githubusercontent.com/lycc123456/TextPhoto/master/20180228155217.png)
+
+
+V1.1版本更新
+  1.本地字体选择功开发，可选择自己喜欢字体生成图片；
+  2.添加九宫格样式，一键生成多张图；
+  3.更换原有字体；
