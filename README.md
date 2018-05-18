@@ -7,7 +7,8 @@
 * 聊天单发文字，很枯燥，把文字变成图片，更简单。
 * 软件可设置字体、颜色、背景、大小功能
 
-[下载地址](https://github.com/lycc123456/TextPhoto/blob/master/app/release/app-release.apk)
+[下载地址](https://github.com/lycc123456/TextPhoto/raw/master/app/release/app-release.apk)
+
 
 ## 本程序因为自带三款字体，所以包相对较大，有需要的朋友可以自己删掉，或者更换喜欢的字体！
 
