@@ -2,15 +2,16 @@ package com.example.tinker.textphoto;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.SpannableString;
@@ -24,6 +25,7 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -32,16 +34,24 @@ import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.example.tinker.textphoto.manager.ActivityResultManager;
 import com.example.tinker.textphoto.utils.ImageUtils;
 import com.example.tinker.textphoto.utils.ScreenUtils;
 import com.example.tinker.textphoto.utils.Toast;
 import com.example.tinker.textphoto.utils.Utils;
 import com.sloop.fonts.FontsManager;
+import com.vincent.filepicker.Constant;
+import com.vincent.filepicker.activity.NormalFilePickActivity;
+import com.vincent.filepicker.filter.entity.NormalFile;
 import com.yanzhenjie.permission.AndPermission;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener {
+
+    public static final int REQUESTCODE_FROM_ACTIVITY = 1000;
 
     //字体
     private TextView mTextStyle;
@@ -76,15 +86,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //    private String[] textStyleS={"FZQingCTJ_Xi.otf","fzssksjt.ttf","wdxgbxk.TTF"};
     private String[] textStyleS = {"lbkr.ttf", "fzssksjt.ttf", "zbqp.ttf"};
     private Bitmap mBitmap;
+    private Bitmap mBitmaps[];
 
     private String filePath;
+    private String fontPath;
     private RadioGroup mPhotoStyleGroup;
     private int checkid = 1;
+    private ActivityResultManager manager;
+
+    private String[] texts;
+    private TextView mSaveButton;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         initView();
     }
@@ -94,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mTextStyle2 = (TextView) findViewById(R.id.textStyle2);
         mTextStyle3 = (TextView) findViewById(R.id.textStyle3);
         mTextStyle4 = (TextView) findViewById(R.id.textStyle4);
+
+        mSaveButton = (TextView) findViewById(R.id.saveButton);
 
         mTextSizeBar = (SeekBar) findViewById(R.id.textSizeBar);
 
@@ -118,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mTextStyle1.setOnClickListener(this);
         mTextStyle2.setOnClickListener(this);
         mTextStyle3.setOnClickListener(this);
+        mSaveButton.setOnClickListener(this);
         mTextStyle4.setOnClickListener(this);
         mTextColor1.setOnClickListener(this);
         mTextColor2.setOnClickListener(this);
@@ -126,8 +146,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mTextBackground2.setOnClickListener(this);
         mTextBackground3.setOnClickListener(this);
 
-        mImg.setOnLongClickListener(this);
         mPhotoStyleGroup.setOnCheckedChangeListener(this);
+
+        manager = new ActivityResultManager(this);
 
         Utils.init(this);
         addWatchListener();
@@ -210,6 +231,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.create_img:
                 Utils.hideSoftKeyBoard(this);
+                if (TextUtils.isEmpty(mTextEditor.getText().toString())) {
+                    return;
+                }
+                mSaveButton.setEnabled(true);
+                if (checkid == 3) {
+                    texts = mTextEditor.getText().toString().split("。");
+                    if (texts.length > 1) {
+                        createImages();
+                    }
+                    return;
+                }
                 createImage();
 
                 break;
@@ -232,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mTextStyleIndex = 2;
                 break;
             case R.id.textStyle4:
-                Toast.show(MainActivity.this, "功能开发中...");
+                choiceFilePicker();
                 break;
             case R.id.textColor1:
                 mTextColorNu = Color.parseColor(mTextColor1.getText().toString());
@@ -254,6 +286,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mTextBgColorNu = Color.parseColor(mTextBackground2.getText().toString());
                 mTextEditor.setBackgroundColor(mTextBgColorNu);
                 break;
+            case R.id.saveButton:
+                onLongClick();
+                break;
             case R.id.textBackground3:
                 mTextBgColorNu = Color.parseColor(mTextBackground3.getText().toString());
                 mTextEditor.setBackgroundColor(mTextBgColorNu);
@@ -261,9 +296,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void choiceFilePicker() {
+//        new LFilePicker()
+//                .withActivity(MainActivity.this)
+//                .withRequestCode(REQUESTCODE_FROM_ACTIVITY)
+//                .withStartPath("/storage/emulated/0/Download")//指定初始显示路径
+//                .withIsGreater(false)//过滤文件大小 小于指定大小的文件
+//                .withChooseMode(true)
+//                .withMutilyMode(false)
+//                .withIconStyle(Constant.ICON_STYLE_GREEN)
+////                .withFileFilter(new String[]{".ttf", ".otf"})
+//                .start();
+        Intent intent4 = new Intent(this, NormalFilePickActivity.class);
+        intent4.putExtra(Constant.MAX_NUMBER, 1);
+        intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[]{"ttf", "otf"});
+        manager.startForResult(intent4, Constant.REQUEST_CODE_PICK_FILE, new ActivityResultManager.Callback() {
+            @Override
+            public void onActivityResult(int requestCode, int resultCode, Intent data) {
+                if (resultCode == RESULT_OK) {
+                    ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
+                    Toast.show(getApplicationContext(), "选中了" + list.size() + "个文件");
+                    fontPath = list.get(0).getPath();
+                    mTextStyleIndex = -1;
+                    FontsManager.initFormFile(fontPath);
+                    FontsManager.changeFonts(mTextStyle4);
+                    FontsManager.changeFonts(mTextEditor);
+                }
+            }
+        });
+    }
+
     private void createImage() {
         mBitmap = textAsBitmap(mTextEditor.getText().toString());
         mImg.setImageBitmap(mBitmap);
+    }
+
+    private void createImages() {
+        mBitmaps = new Bitmap[texts.length];
+        for (int i = 0; i <= texts.length - 1; i++) {
+            Bitmap mmBitmap = textAsBitmap(texts[i]);
+            mBitmaps[i] = mmBitmap;
+
+        }
+        mImg.setImageBitmap(mBitmaps[0]);
+        mBitmap = null;
     }
 
     public Bitmap textAsBitmap(String text) {
@@ -276,23 +352,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         textPaint.setTextSize(mTextSize1 * scale);
         textPaint.setStyle(Paint.Style.FILL);
+        textPaint.setFakeBoldText(true);
         textPaint.setStrokeWidth(50);
         textPaint.setAntiAlias(true);//设置抗锯齿
         if (mTextStyleIndex >= 0) {
             //自定义字体库，放在main/assets目录下
             Typeface typeface = Typeface.createFromAsset(getAssets(), textStyleS[mTextStyleIndex]);
             textPaint.setTypeface(typeface);
+        } else if (!TextUtils.isEmpty(fontPath)) {
+            //自定义字体库，放在main/assets目录下
+            Typeface typeface = Typeface.createFromFile(fontPath);
+            textPaint.setTypeface(typeface);
         }
 
         StaticLayout staticLayout = new StaticLayout(text, textPaint,
-                ((int) Math.ceil(StaticLayout.getDesiredWidth(text, textPaint)) <= 760 ?
-                        (int) Math.ceil(StaticLayout.getDesiredWidth(text, textPaint)) : 760),
+                ((int) Math.ceil(StaticLayout.getDesiredWidth(text, textPaint)) <= 900 ?
+                        (int) Math.ceil(StaticLayout.getDesiredWidth(text, textPaint)) : 900),
                 Layout.Alignment.ALIGN_CENTER, 1.2f, 0.0f, false);
 
         Rect staticLayoutRect = new Rect(0, 0, staticLayout.getEllipsizedWidth(), staticLayout.getHeight());
 
-        int width = (checkid == 1) ? (staticLayout.getEllipsizedWidth() + dip2px(6)) : ScreenUtils.getScreenWidth();
-        int height = (checkid == 1) ? (staticLayout.getHeight() + dip2px(6)) : ScreenUtils.getScreenHeight();
+        int width = (checkid == 1) ? (staticLayout.getEllipsizedWidth() + dip2px(6)) : (checkid == 3) ? dip2px(550) : ScreenUtils.getScreenWidth();
+        int height = (checkid == 1) ? (staticLayout.getHeight() + dip2px(6)) : (checkid == 3) ? dip2px(550) : ScreenUtils.getScreenHeight();
+
         Bitmap bitmap = Bitmap.createBitmap(width,
                 height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
@@ -334,15 +416,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return bitmapCode;
     }
 
-    @Override
-    public boolean onLongClick(View v) {
-        createCrashFilePath();
-        boolean yes = ImageUtils.save(mBitmap, filePath, Bitmap.CompressFormat.PNG);
-        if (yes) {
+    public boolean onLongClick() {
+        if (mBitmap != null) {
+            createCrashFilePath();
+
+            boolean yes = ImageUtils.save(mBitmap, filePath, Bitmap.CompressFormat.PNG);
+            if (yes) {
+                Toast.show(this, "图片已经保存到本地textPhoto目录下");
+            }
+            return true;
+        }
+        if (mBitmaps != null && mBitmaps.length > 0) {
+            for (int i = 0; i <= mBitmaps.length - 1; i++) {
+                createCrashFilePath();
+                ImageUtils.save(mBitmaps[i], filePath, Bitmap.CompressFormat.PNG);
+            }
             Toast.show(this, "图片已经保存到本地textPhoto目录下");
         }
+
         return true;
     }
+
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -408,8 +502,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onCheckedChanged(RadioGroup group, int checkedId) {
         if (checkedId == R.id.photo_style_phone) {
             checkid = 2;
-        } else {
+        } else if (checkedId == R.id.photo_style_normal) {
             checkid = 1;
+        } else {
+            checkid = 3;
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        manager.trigger(requestCode, resultCode, data);
     }
 }

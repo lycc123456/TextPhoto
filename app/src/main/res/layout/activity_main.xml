@@ -250,9 +250,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginRight="5dp"
+                android:checked="true"
                 android:gravity="center"
                 android:text="普通图片"
-                android:checked="true"
                 android:textColor="@color/text_535353_selector" />
 
             <RadioButton
@@ -262,6 +262,15 @@
                 android:layout_gravity="center_vertical"
                 android:gravity="center"
                 android:text="手机壁纸"
+                android:textColor="@color/text_535353_selector" />
+
+            <RadioButton
+                android:id="@+id/photo_style_wx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:text="九宫格"
                 android:textColor="@color/text_535353_selector" />
         </RadioGroup>
     </LinearLayout>
@@ -288,7 +297,7 @@
                 android:layout_height="match_parent"
                 android:background="#00000000"
                 android:gravity="left"
-                android:hint="请输入文字"
+                android:hint="请输入文字。若需多图，中文句号隔开，样式选九宫格"
                 android:padding="5dp"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -305,6 +314,19 @@
             android:textSize="18sp" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/saveButton"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/button_radius_fed130_selector"
+        android:gravity="center"
+        android:letterSpacing="-0.02"
+        android:text="保存图片"
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        android:enabled="false"
+        app:layout_constraintTop_toBottomOf="@+id/text_edit_layout" />
 
     <TextView
         android:id="@+id/img_tips"
@@ -314,9 +336,9 @@
         android:gravity="center"
         android:paddingBottom="8dp"
         android:paddingTop="8dp"
-        android:text="图片显示: (长按图片保存到本地，大图可滚动查看)"
+        android:text="图片显示: (可滚动查看大图)"
         android:textColor="#333333"
-        app:layout_constraintTop_toBottomOf="@+id/text_edit_layout" />
+        app:layout_constraintTop_toBottomOf="@+id/saveButton" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -330,6 +352,7 @@
             android:layout_height="wrap_content"
             android:scaleType="centerInside" />
     </ScrollView>
+
 </android.support.constraint.ConstraintLayout>
 
 
